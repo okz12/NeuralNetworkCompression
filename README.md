@@ -24,7 +24,7 @@ Dark knowledge refers to the information hidden in the tail end of the probabili
 
 ### Results
 
-I ran the experiments on a Custom MiniVGG, which uses structure and blocks of VGG but is smaller than VGG-11. The number of layers and parameters is given below. Using knowledge distillation results in an uplift of 1.7% in accuracy.
+I ran the experiments on a Custom MiniVGG, which uses structure and blocks of VGG but is smaller than VGG-11. The number of layers and parameters is given below. Using knowledge distillation results in an uplift of 1.7% in accuracy on the CIFAR10 dataset.
 
 |                      | VGG-13    | Custom MiniVGG | Custom MiniVGG + VGG13 KD |
 |----------------------|-----------|----------------|---------------------------|
