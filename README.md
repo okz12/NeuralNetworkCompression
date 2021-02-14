@@ -19,7 +19,7 @@ The output logits from the larger model are used to train the smaller model inst
 
 ### Student Targets
 
-Dark knowledge refers to the information hidden in the tail end of the probability distribution. Teacher logits ($z$) can be smoothed by a temperature parameter ($T$) to give a softer output distribution to be used as student targets ($q$). A smaller model finds it easier to match the softer output distribution, resulting in higher accuracy. A lower temperature results in a sharper information, a higher temperature pushes up the tail of the distribution but approaches a uniform distribution at very high temperature values.
+Dark knowledge refers to the information hidden in the tail end of the probability distribution. Teacher logits (<img src="https://render.githubusercontent.com/render/math?math=$z$&mode=inline">) can be smoothed by a temperature parameter (<img src="https://render.githubusercontent.com/render/math?math=$T$&mode=inline">) to give a softer output distribution to be used as student targets (<img src="https://render.githubusercontent.com/render/math?math=$q$&mode=inline">). A smaller model finds it easier to match the softer output distribution, resulting in higher accuracy. A lower temperature results in a sharper information, a higher temperature pushes up the tail of the distribution but approaches a uniform distribution at very high temperature values.
 
 ![KD Dark Knowledge](figs/gifs/KD_Dark_Knowledge.gif?raw=true "KD Dark Knowledge")
 
@@ -44,14 +44,18 @@ Soft-weight sharing relies on imposing priors on the weights of the neural netwo
 
 Soft-weight sharing imposes a Gaussian Mixture Model (GMM) parameter on the network forcing it to sparsity:
 
-$\text{Accuracy Loss} \times \text{Clustering Loss} \times \text{Trade-off Parameter}$ =
-$\underbrace{-\frac{1}{N} \sum_{i=1}^{N}y_i \log (\hat{y_i})}_{\text{Cross-Entropy Loss}} \times \tau \times \underbrace{\sum_{i=1}^{N} \log \sum_{j=0}^{J} \pi_j \mathcal{N}(w_i | \mu_j, \sigma_j^2)}_{\text{GMM Loss}}$
+<img src="https://render.githubusercontent.com/render/math?math=\text{Accuracy Loss} \times \text{Clustering Loss} \times \text{Trade-off Parameter}&mode=inline"> =
+<img src="https://render.githubusercontent.com/render/math?math=\underbrace{-\frac{1}{N} \sum_{i=1}^{N}y_i \log (\hat{y_i})}_{\text{Cross-Entropy Loss}} \times \tau \times \underbrace{\sum_{i=1}^{N} \log \sum_{j=0}^{J} \pi_j \mathcal{N}(w_i | \mu_j, \sigma_j^2)}_{\text{GMM Loss}}&mode=inline">
 
 Imposing the GMM prior is very similar to imposing a Gaussian prior for L2-regularisation. With L2-regularisation and Gaussian distribution penalty is added to the loss function, forcing the weights to cluster around 0.
 
+L2-Prior Penalty term: <img src="https://render.githubusercontent.com/render/math?math=p(w) = \sum_{i=1} \mathcal{N}(w_i | 0, \sigma^2)&mode=inline">
+
 ![SWS Prior L2](figs/gifs/SWS_Priors_L2.gif?raw=true "SWS Prior L2")
 
-The GMM loss also has a cluster fixed at 0 to enforce sparsity, but allows other free-clusters with variable means to allow the network to retain values further from 0. The cluster at 0 is also given a higher mixing proportion ($\pi_0$) to ensure most of the network weights remain in the 0-mean cluster.
+The GMM loss also has a cluster fixed at 0 to enforce sparsity, but allows other free-clusters with variable means to allow the network to retain values further from 0. The cluster at 0 is also given a higher mixing proportion (<img src="https://render.githubusercontent.com/render/math?math=\pi_0&mode=inline">) to ensure most of the network weights remain in the 0-mean cluster.
+
+GMM-Prior Penalty term: <img src="https://render.githubusercontent.com/render/math?math=\small{p(w) = \prod_{i=1}^{N} \sum_{j=0}^{J} \pi_j \mathcal{N}(w_i | \mu_j, \sigma_j^2)}&mode=inline">
 
 ![SWS Prior GMM](figs/gifs/SWS_Priors_GMM.gif?raw=true "SWS Prior GMM")
 
