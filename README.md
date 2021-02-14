@@ -45,7 +45,7 @@ Soft-weight sharing relies on imposing priors on the weights of the neural netwo
 Soft-weight sharing imposes a Gaussian Mixture Model (GMM) parameter on the network forcing it to sparsity:
 
 <img src="https://render.githubusercontent.com/render/math?math=\text{Accuracy Loss} \times \text{Clustering Loss} \times \text{Trade-off Parameter}&mode=inline"> =
-<img src="https://render.githubusercontent.com/render/math?math=\underbrace{-\frac{1}{N} \sum_{i=1}^{N}y_i \log (\hat{y_i})}_{\text{Cross-Entropy Loss}} \times \tau \times \underbrace{\sum_{i=1}^{N} \log \sum_{j=0}^{J} \pi_j \mathcal{N}(w_i | \mu_j, \sigma_j^2)}_{\text{GMM Loss}}&mode=inline">
+<img src="https://render.githubusercontent.com/render/math?math=-\frac{1}{N} \sum_{i=1}^{N}y_i \log (\hat{y_i}) \times \tau \times \sum_{i=1}^{N} \log \sum_{j=0}^{J} \pi_j \mathcal{N}(w_i | \mu_j, \sigma_j^2)&mode=inline">
 
 Imposing the GMM prior is very similar to imposing a Gaussian prior for L2-regularisation. With L2-regularisation and Gaussian distribution penalty is added to the loss function, forcing the weights to cluster around 0.
 
