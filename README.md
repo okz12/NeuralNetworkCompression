@@ -94,6 +94,12 @@ The joint plot shows the movement of variables when optimized with clustering lo
 | Accuracy | 98.2%    | 96.9% |
 | Sparsity | 0.0%     | 98.0% |
 
+## Closing Remarks
+
+Knowledge distillation works fairly well and provides a not insignificant boost to the student network's accuracy. It also doesn't require a significant amount of compute for retraining as only a smaller student network will be optimised. A side-benefit of knowledge distillation is that it can train a student network from a teacher network even if the labels are missing.
+
+Soft-weight sharing requires a significant amount of compute as the entire network is retrained with a more tedious loss function, increasing the amount of errors backpropogating through the network. The method works well at inducing sparsity into the network but only for individual weights or connections. This is useful for storage but modern AI hardware accelerators are typically optimised for dense matrices.
+
 
 
 ## Sources
