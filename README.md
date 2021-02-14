@@ -8,7 +8,7 @@ This repository investigates two methods of compressing neural networks:
 
 ## Knowledge Distillation
 
-Knowledge distillation uses a larger teacher model to train and smaller student model.
+Knowledge distillation uses a larger teacher model to train a smaller student model.
 
 ### Training
 
@@ -18,13 +18,13 @@ The output logits from the larger model are used to train the smaller model inst
 
 ### Student Targets
 
-Dark knowledge refers to the information hidden in the tail end of the probability distribution. Teacher logits (<img src="https://render.githubusercontent.com/render/math?math=$z$&mode=inline">) can be smoothed by a temperature parameter (<img src="https://render.githubusercontent.com/render/math?math=$T$&mode=inline">) to give a softer output distribution to be used as student targets (<img src="https://render.githubusercontent.com/render/math?math=$q$&mode=inline">). A smaller model finds it easier to match the softer output distribution, resulting in higher accuracy. A lower temperature results in a sharper information, a higher temperature pushes up the tail of the distribution but approaches a uniform distribution at very high temperature values.
+Dark knowledge refers to the information hidden in the tail end of the probability distribution. We can use this dark knowledge in the teacher logits to help train the student model more effectively. The output distribution of teacher logits (<img src="https://render.githubusercontent.com/render/math?math=$z$&mode=inline">) can be smoothed by a temperature parameter (<img src="https://render.githubusercontent.com/render/math?math=$T$&mode=inline">) to give a softer output distribution to be used as student targets (<img src="https://render.githubusercontent.com/render/math?math=$q$&mode=inline">). A smaller model finds it easier to match the softer output distribution, resulting in higher accuracy. A lower temperature results in a sharper information, a higher temperature pushes up the tail of the distribution but approaches a uniform distribution at very high temperature values.
 
 ![KD Dark Knowledge](figs/gifs/KD_Dark_Knowledge.gif?raw=true "KD Dark Knowledge")
 
 ### Results
 
-I ran the experiments on a Custom MiniVGG, which uses structure and blocks of VGG but is smaller than VGG-11. The number of layers and parameters is given below. Using knowledge distillation results in an uplift of 1.7% in accuracy on the CIFAR10 dataset.
+I ran the experiments on a Custom MiniVGG, which only uses a part of the entire VGG-13 network. It removes some VGG blocks also reduces the number of parameters in each layer while keeping the structure the same. The number of layers and parameters is given below. Using knowledge distillation results in an uplift of 1.7% in accuracy on the CIFAR10 dataset.
 
 |                      | VGG-13    | Custom MiniVGG | Custom MiniVGG + VGG13 KD |
 |----------------------|-----------|----------------|---------------------------|
@@ -34,26 +34,26 @@ I ran the experiments on a Custom MiniVGG, which uses structure and blocks of VG
 
 ## Soft-weight Sharing
 
-Soft-weight sharing relies on imposing priors on the weights of the neural network as penalties, reducing the size of the network through optimisation.
+Soft-weight sharing works by modifying the loss function to compress the model. A penalty is imposed on the values of the network's parameters forcing the majority to 0. Hence, optimising with the clustering penalty effectively prunes the network.
 
 ![SWS NN](figs/gifs/SWS_NN.gif?raw=true "SWS NN")
 
-### Priors
+### Clustering Loss
 
-Soft-weight sharing imposes a Gaussian Mixture Model (GMM) parameter on the network forcing it to sparsity:
+Soft-weight sharing imposes a penalty for each network parameter given by a Gaussian Mixture Model (GMM) evaluated at the value of the network parameter.
 
 <img src="https://render.githubusercontent.com/render/math?math=\text{Accuracy Loss} \times \text{Clustering Loss} \times \text{Trade-off Parameter}&mode=inline"> =
 <img src="https://render.githubusercontent.com/render/math?math=-\frac{1}{N} \sum_{i=1}^{N}y_i \log (\hat{y_i}) \times \tau \times \sum_{i=1}^{N} \log \sum_{j=0}^{J} \pi_j \mathcal{N}(w_i | \mu_j, \sigma_j^2)&mode=inline">
 
 Imposing the GMM prior is very similar to imposing a Gaussian prior for L2-regularisation. With L2-regularisation and Gaussian distribution penalty is added to the loss function, forcing the weights to cluster around 0.
 
-L2-Prior Penalty term: <img src="https://render.githubusercontent.com/render/math?math=p(w) = \sum_{i=1} \mathcal{N}(w_i | 0, \sigma^2)&mode=inline">
+L2 Penalty term: <img src="https://render.githubusercontent.com/render/math?math=p(w) = \sum_{i=1} \mathcal{N}(w_i | 0, \sigma^2)&mode=inline">
 
 ![SWS Prior L2](figs/gifs/SWS_Priors_L2.gif?raw=true "SWS Prior L2")
 
-The GMM loss also has a cluster fixed at 0 to enforce sparsity, but allows other free-clusters with variable means to allow the network to retain values further from 0. The cluster at 0 is also given a higher mixing proportion (<img src="https://render.githubusercontent.com/render/math?math=\pi_0&mode=inline">) to ensure most of the network weights remain in the 0-mean cluster.
+A Gaussian mixture with high mixing proportion is fixed at 0-mean, forcing the network to become more sparse, the remaining mixtures are free-clusters with variable means to allow the network to retain values further from 0. The cluster at 0 is also given a higher mixing proportion (<img src="https://render.githubusercontent.com/render/math?math=\pi_0&mode=inline">) to ensure most of the network weights remain in the 0-mean cluster.
 
-GMM-Prior Penalty term: <img src="https://render.githubusercontent.com/render/math?math=\small{p(w) = \prod_{i=1}^{N} \sum_{j=0}^{J} \pi_j \mathcal{N}(w_i | \mu_j, \sigma_j^2)}&mode=inline">
+GMM Penalty term: <img src="https://render.githubusercontent.com/render/math?math=\small{p(w) = \prod_{i=1}^{N} \sum_{j=0}^{J} \pi_j \mathcal{N}(w_i | \mu_j, \sigma_j^2)}&mode=inline">
 
 ![SWS Prior GMM](figs/gifs/SWS_Priors_GMM.gif?raw=true "SWS Prior GMM")
 
@@ -61,7 +61,7 @@ GMM-Prior Penalty term: <img src="https://render.githubusercontent.com/render/ma
 
 Training for soft-weight sharing involves 3 steps.
 
-#### Step 1: Training
+#### Step 1: Ordinary Training
 
 The first step is to train the network normally (i.e. without any added penalties for clustering to the loss function).
 
@@ -75,7 +75,7 @@ The second step is to add the clustering penalty to the loss function which tran
 
 #### Step 3: Prune and Quantize
 
-The final step is to prune and quantize each of the mixtures to their mixture means. The 0-mean mixture is effectively pruned and the remaining values are quantized and can be represented very compactly using codebook quantization.
+The final step is to prune and quantize each of the mixtures to their mixture means. The 0-mean mixture is effectively pruned and the remaining values are quantized and can be represented very compactly using [compressed row storage](https://en.wikipedia.org/wiki/Sparse_matrix).
 
 ![SWS Clustering Step 3 Prune and Quantize](figs/gifs/SWS_Clustering_3_prune_quantize.gif?raw=true "SWS Clustering Step 1 Prune and Quantize")
 
@@ -83,7 +83,7 @@ The final step is to prune and quantize each of the mixtures to their mixture me
 
 Below are the results for implementing soft-weight sharing on a LeNet-300-100 with MNIST dataset.
 
-The joint plot
+The joint plot shows the movement of variables when optimized with clustering loss. Along the x-axis are ordinarily trained network parameter distribution and along the y-axis, we have the distribution of network parameters as it clusters. We can see clusters forming along each of the means with a large cluster at 0.
 
 ![Lenet Joint Plot](figs/lenet_jp.gif?raw=true "Lenet Joint Plot")
 
