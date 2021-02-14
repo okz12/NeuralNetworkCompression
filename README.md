@@ -1,4 +1,4 @@
-# NeuralNetworkCompression
+# Neural Network Compression
 
 This repository investigates two methods of compressing neural networks:
 
@@ -10,7 +10,7 @@ This repository investigates two methods of compressing neural networks:
 
 Knowledge distillation uses a larger teacher model to train a smaller student model.
 
-### Training
+### Teacher Training
 
 The output logits from the larger model are used to train the smaller model instead of one-hot encoded targets.
 
