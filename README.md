@@ -7,7 +7,6 @@ This repository investigates two methods of compressing neural networks:
 2. Soft-weight Sharing with Pruning
 
 ## Knowledge Distillation
----
 
 Knowledge distillation uses a larger teacher model to train and smaller student model.
 
@@ -34,7 +33,6 @@ I ran the experiments on a Custom MiniVGG, which uses structure and blocks of VG
 | Accuracy             | 85.5%     | 79.7%          | 81.4%                     |
 
 ## Soft-weight Sharing
----
 
 Soft-weight sharing relies on imposing priors on the weights of the neural network as penalties, reducing the size of the network through optimisation.
 
@@ -99,7 +97,6 @@ The joint plot
 
 
 ## Sources
----
 - Hinton, G., Vinyals, O. and Dean, J., 2015. Distilling the knowledge in a neural network. arXiv preprint arXiv:1503.02531.
 - Ullrich, K., Meeds, E. and Welling, M., 2017. Soft weight-sharing for neural network compression. arXiv preprint arXiv:1702.04008.
 - Nowlan, S.J. and Hinton, G.E., 1992. Simplifying neural networks by soft weight-sharing. Neural computation, 4(4), pp.473-493.
